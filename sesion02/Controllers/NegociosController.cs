@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 //
 using Microsoft.Data.SqlClient;
 using sesion02.Models;
+//
+using System.Data; //para los sp
 
 namespace sesion02.Controllers
 {
@@ -20,10 +22,17 @@ namespace sesion02.Controllers
             this.cadena = _config["ConnectionStrings:connection"]; //obtenemos la cadena de appsettings.json
         }
 
-        public IActionResult Index()
+        // ActionRESULT es mejor llamarlos en FORMA ASINCRONA (promesas en javascript)
+        public async Task<IActionResult> Index()
         {
-            return View(GetProductos());
+            return View( await Task.Run( () => GetProductos() ) );
         }
+
+
+        //public IActionResult Index()
+        //{
+        //    return View(GetProductos());
+        //}
 
         // usando microsoft.dATA
         IEnumerable<Producto> GetProductos() 
@@ -32,12 +41,18 @@ namespace sesion02.Controllers
 
             using (SqlConnection connection = new SqlConnection(cadena)) 
             {
-                SqlCommand cmd = new SqlCommand("SELECT P.idProducto, " +
+                /*SqlCommand cmd = new SqlCommand("SELECT P.idProducto, " +
                                 "  P.nombreProducto, C.nombreCategoria, " +
                                 "  P.precioUnitario, P.stock\r\n" +
                                 "  FROM PRODUCTO P\r\n" +
                  "  INNER JOIN CATEGORIA C ON C.idCategoria = P.idCategoria", connection);
-                //
+                */
+                //Es un texto, la version 2 se indica que es un sp
+                //SqlCommand cmd = new SqlCommand("EXEC sp_GetProductos", connection);
+
+                SqlCommand cmd = new SqlCommand("sp_GetProductos", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+
                 connection.Open();
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
