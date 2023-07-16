@@ -9,6 +9,11 @@ namespace sesion02.Models
         public int idProducto { get; set; }
         [Display(Name = "Nombre")]
         public string? nombreProducto { get; set; }
+
+        //para el combobox
+        [Display(Name = "Categoria")]
+        public int idCategoria { get; set; }
+
         [Display(Name = "Nombre Categoria")]
         public string? nombreCategoria { get; set; }
         [Display(Name = "Precio Unitario")]
