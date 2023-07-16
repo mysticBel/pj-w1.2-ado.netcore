@@ -7,6 +7,7 @@ using Microsoft.Data.SqlClient;
 using sesion02.Models;
 //
 using System.Data; //para los sp
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace sesion02.Controllers
 {
@@ -148,6 +149,44 @@ namespace sesion02.Controllers
 
             return View(await Task.Run(() => productos.Skip(pagina * filasPagina).Take(filasPagina)));
 
+        }
+
+        // w2.1. - Traemos la lista de Categorias
+        IEnumerable<Categoria> GetCategorias()
+        {
+            List<Categoria> categorias = new List<Categoria>();
+
+            using (SqlConnection connection = new SqlConnection(cadena)) 
+            {
+                SqlCommand command = new SqlCommand("sp_GetCategorias", connection); 
+                command.CommandType = CommandType.StoredProcedure;
+                
+                connection.Open();
+                SqlDataReader dr = command.ExecuteReader();
+                while (dr.Read())
+                {
+                    categorias.Add(new Categoria()
+                    {
+                        idCategoria = dr.GetInt32(0),
+                        nombreCategoria = dr.GetString(1)
+                    });
+                }
+
+            }
+
+            return categorias;
+        }
+
+        // -- su action result de GetCategorias
+        public async Task<IActionResult> CreateProducto() 
+        {
+            ViewBag.categorias = new SelectList(
+                    await Task.Run( () => GetCategorias() ),
+                    "idCategoria",
+                    "nombreCategoria"
+                );
+
+            return View( new Producto());
         }
     }
 }
