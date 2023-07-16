@@ -13,7 +13,7 @@ namespace sesion02.Controllers
     public class NegociosController : Controller
     {
 
-        //
+        // W1 - action result Negocios para Producto Model
         public readonly IConfiguration _config;
         public string cadena;
         public NegociosController(IConfiguration _config)
@@ -69,6 +69,33 @@ namespace sesion02.Controllers
             }
 
             return productos;
+        }
+
+        // w2 -PAGINACION
+        public async Task<IActionResult> PaginacionProductos(int pagina = 0)
+        {
+            IEnumerable<Producto> productos = GetProductos();
+
+            int filasPagina = 4;  // indico que tome 4 items por pagina
+            int totalFilas = productos.Count();
+            int numeroPaginas = totalFilas % filasPagina == 0 ? totalFilas / filasPagina :  (totalFilas / filasPagina) + 1;
+
+
+            // Ejemplo : totalFilas = 8 productos
+            // -- 1er PAGINA item 1, 2, 3 , 4    
+            // int  pagina = 0  --> muestra a pratir de la posicion 0 --> 0 * 4 = 0 osea pagina * filasPagina
+            // -- 2da PAGINA 5, 6, 7, 8         
+            // int  pagina = 1  --> muestra desde la posicion 4       --> 1 * 4 = 4
+            // total tendriamos 2 paginas  ( total filas/ 4 items)
+
+            //si fuese 14
+            //totalPaginas = 14/ 4 = 3.5 => 3+1 = 4 paginas
+
+            ViewBag.pagina = pagina; //necesitamos enviar la pagina que estamos
+            ViewBag.numeroPaginas = numeroPaginas; // y el numero de paginas
+
+
+            return View(await Task.Run(() => productos.Skip(pagina * filasPagina).Take(filasPagina)));
         }
     }
 }
