@@ -1,0 +1,85 @@
+﻿@model IEnumerable<sesion02.Models.Producto>
+
+@{
+    ViewData["Title"] = "FiltroProductos";
+}
+
+<h1>FiltroProductos</h1>
+
+<!-- FORMULARIO  nombre es igual al del parametro en el task actionresult-->
+@using (Html.BeginForm())
+{
+    <en>Ingrese el nombre:  </en>
+    @Html.TextBox("nombre", "")
+
+    <button> Buscar </button>
+}
+
+
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.idProducto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.nombreProducto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.nombreCategoria)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.precioUnitario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.stock)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.idProducto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.nombreProducto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.nombreCategoria)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.precioUnitario)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.stock)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+<!-- PAGINACION div inferior-->
+<div>
+    @for (int i = 0; i < ViewBag.numeroPaginas; i++)
+    {
+        @Html.ActionLink(
+    (i + 1 ).ToString(),
+    "FiltroProductos",
+    "Negocios",
+    new { nombre = ViewBag.nombre , pagina = i },
+    new { @class = "btn btn-primary" }
+    )
+    }
+
+</div>

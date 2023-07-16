@@ -71,14 +71,15 @@ namespace sesion02.Controllers
             return productos;
         }
 
-        // w2 -PAGINACION
+
+        // w2.1 -PAGINACION
         public async Task<IActionResult> PaginacionProductos(int pagina = 0)
         {
             IEnumerable<Producto> productos = GetProductos();
 
             int filasPagina = 4;  // indico que tome 4 items por pagina
             int totalFilas = productos.Count();
-            int numeroPaginas = totalFilas % filasPagina == 0 ? totalFilas / filasPagina :  (totalFilas / filasPagina) + 1;
+            int numeroPaginas = totalFilas % filasPagina == 0 ? totalFilas / filasPagina : (totalFilas / filasPagina) + 1;
 
 
             // Ejemplo : totalFilas = 8 productos
@@ -96,6 +97,57 @@ namespace sesion02.Controllers
 
 
             return View(await Task.Run(() => productos.Skip(pagina * filasPagina).Take(filasPagina)));
+        }
+
+
+        // w2.1 - busqueda por producto 
+        IEnumerable<Producto> GetProductosByName(string nombre)
+        {
+            List<Producto> productos = new List<Producto>();
+
+            using (SqlConnection connection = new SqlConnection(this.cadena))
+            {
+                SqlCommand cmd = new SqlCommand("sp_GetProductosByName", connection);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@prmNombre", nombre);
+                //aqui agregariamos mas parametros de haberlo
+
+                connection.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                while (dr.Read())
+                {
+                    productos.Add(new Producto()
+                    {
+                        idProducto = dr.GetInt32(0),
+                        nombreProducto= dr.GetString(1),
+                        nombreCategoria = dr.GetString(2),
+                        precioUnitario= dr.GetDecimal(3),
+                        stock = dr.GetInt32(4)
+                    });
+                }
+            }
+            return productos;
+        }
+
+        // su ActionRESULT  + PAGINACION
+        public async Task<IActionResult> FiltroProductos(string nombre="", int pagina = 0)
+        {
+            //validacion por si no se envia nada
+            if (nombre == null)
+                nombre = "";
+
+            IEnumerable<Producto> productos = GetProductosByName(nombre);
+            int filasPagina = 5;  // indico que tome 5 items por pagina
+            int totalFilas = productos.Count();
+            int numeroPaginas = totalFilas % filasPagina == 0 ? totalFilas / filasPagina : (totalFilas / filasPagina) + 1;
+
+            ViewBag.pagina = pagina;
+            ViewBag.numeroPaginas = numeroPaginas;
+            ViewBag.nombre = nombre;
+
+            return View(await Task.Run(() => productos.Skip(pagina * filasPagina).Take(filasPagina)));
+
         }
     }
 }
